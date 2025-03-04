@@ -1,0 +1,27 @@
+include(ExternalProject)
+
+ExternalProject_Add(lib_ydlidar_sdk
+    GIT_REPOSITORY https://github.com/meetgandhi-dev/YDLidar-SDK.git
+    PREFIX ${PROJECT_BINARY_DIR}/lib_ydlidar_sdk
+    INSTALL_DIR ${PROJECT_BINARY_DIR}/install
+    CMAKE_ARGS
+        -DBUILD_EXAMPLES=OFF
+        -DBUILD_TEST=OFF
+        -DBUILD_SHARED_LIBS=OFF
+        -DCMAKE_CXX_FLAGS=-Wno-error
+        -DCMAKE_PREFIX_PATH=<INSTALL_DIR>
+    CMAKE_CACHE_ARGS
+        -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+)
+
+ExternalProject_Add(ydlidar_ros2_driver
+    SOURCE_DIR ${PROJECT_SOURCE_DIR}
+    BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS lib_ydlidar_sdk
+    CMAKE_ARGS
+        -DYDLIDAR_ROS2_DRIVER_SUPERBUILD:BOOL=OFF
+        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+    CMAKE_CACHE_ARGS
+        -DCMAKE_PREFIX_PATH:PATH=${PROJECT_BINARY_DIR}/install
+    INSTALL_COMMAND ""
+)

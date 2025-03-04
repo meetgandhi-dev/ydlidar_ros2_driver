@@ -1,5 +1,11 @@
 # Copyright(c) 2020 eaibot limited.
 cmake_minimum_required(VERSION 3.5)
+option(YDLIDAR_ROS2_DRIVER_SUPERBUILD "Build project with it's dependencies" ON)
+if(YDLIDAR_ROS2_DRIVER_SUPERBUILD)
+    project(ydlidar_ros2_driver_superbuild NONE)
+    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/SuperBuild.cmake")
+    return()
+endif()
 project(ydlidar_ros2_driver C CXX)
 
 ##################ros2#############################################
@@ -33,6 +39,7 @@ include_directories(
 
 #link library directories
 link_directories(${YDLIDAR_SDK_LIBRARY_DIRS})
+link_directories(${PROJECT_BINARY_DIR}/install/lib)
 
 #---------------------------------------------------------------------------------------
 # generate excutable and add libraries
