@@ -232,6 +232,7 @@ int main(int argc, char *argv[]) {
       scan_msg->ranges.resize(size);
       scan_msg->intensities.resize(size);
 
+      // https://www.ros.org/reps/rep-0117.html
       float invalid_value;
       if (invalid_range_is_inf) {
         invalid_value = std::numeric_limits<float>::infinity();
@@ -246,6 +247,10 @@ int main(int argc, char *argv[]) {
           if (scan.points[i].range >= scan.config.min_range) {
             scan_msg->ranges[index] = scan.points[i].range;
             scan_msg->intensities[index] = scan.points[i].intensity;
+          } else {
+            // https://www.ros.org/reps/rep-0117.html
+            scan_msg->ranges[index] = -std::numeric_limits<float>::infinity();
+            scan_msg->intensities[index] = 0.0f;
           }
         }
       }
