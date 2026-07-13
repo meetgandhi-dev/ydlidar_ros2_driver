@@ -232,17 +232,21 @@ int main(int argc, char *argv[]) {
       scan_msg->ranges.resize(size);
       scan_msg->intensities.resize(size);
 
-      float invalid_value = invalid_range_is_inf ?
-       std::numeric_limits<float>::infinity() : scan.config.max_range + 0.01f;
+      float invalid_value;
+      if (invalid_range_is_inf) {
+        invalid_value = std::numeric_limits<float>::infinity();
+      } else {
+        invalid_value = scan.config.max_range + 1.0f;
+      }
       scan_msg->ranges.assign(size, invalid_value);
 
       for(size_t i=0; i < scan.points.size(); i++) {
         int index = std::ceil((scan.points[i].angle - scan.config.min_angle)/scan.config.angle_increment);
         if(index >=0 && index < size) {
-	  if (scan.points[i].range >= scan.config.min_range) {
+          if (scan.points[i].range >= scan.config.min_range) {
             scan_msg->ranges[index] = scan.points[i].range;
             scan_msg->intensities[index] = scan.points[i].intensity;
-	  }
+          }
         }
       }
 
