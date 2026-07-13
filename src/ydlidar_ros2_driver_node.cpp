@@ -216,12 +216,10 @@ int main(int argc, char *argv[]) {
     if (laser.doProcessSimple(scan)) {
 
       auto scan_msg = std::make_shared<sensor_msgs::msg::LaserScan>();
-      auto pc_msg = std::make_shared<sensor_msgs::msg::PointCloud>();
 
       scan_msg->header.stamp.sec = RCL_NS_TO_S(scan.stamp);
       scan_msg->header.stamp.nanosec =  scan.stamp - RCL_S_TO_NS(scan_msg->header.stamp.sec);
       scan_msg->header.frame_id = frame_id;
-      pc_msg->header = scan_msg->header;
       scan_msg->angle_min = scan.config.min_angle;
       scan_msg->angle_max = scan.config.max_angle;
       scan_msg->angle_increment = scan.config.angle_increment;
@@ -234,12 +232,6 @@ int main(int argc, char *argv[]) {
       scan_msg->ranges.resize(size);
       scan_msg->intensities.resize(size);
 
-      pc_msg->channels.resize(2);
-      int idx_intensity = 0;
-      pc_msg->channels[idx_intensity].name = "intensities";
-      int idx_timestamp = 1;
-      pc_msg->channels[idx_timestamp].name = "stamps";
-
       for(size_t i=0; i < scan.points.size(); i++) {
         int index = std::ceil((scan.points[i].angle - scan.config.min_angle)/scan.config.angle_increment);
         if(index >=0 && index < size) {
@@ -248,23 +240,9 @@ int main(int argc, char *argv[]) {
             scan_msg->intensities[index] = scan.points[i].intensity;
 	  }
         }
-
-	if (scan.points[i].range >= scan.config.min_range &&
-             scan.points[i].range <= scan.config.max_range) {
-          geometry_msgs::msg::Point32 point;
-          point.x = scan.points[i].range * cos(scan.points[i].angle);
-          point.y = scan.points[i].range * sin(scan.points[i].angle);
-          point.z = 0.0;
-          pc_msg->points.push_back(point);
-          pc_msg->channels[idx_intensity].values.push_back(scan.points[i].intensity);
-          pc_msg->channels[idx_timestamp].values.push_back(i * scan.config.time_increment);
-        }
-
       }
 
       laser_pub->publish(*scan_msg);
-      pc_pub->publish(*pc_msg);
-
     } else {
       RCLCPP_ERROR(node->get_logger(), "Failed to get scan");
     }
